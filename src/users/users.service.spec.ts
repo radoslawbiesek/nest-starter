@@ -1,7 +1,8 @@
-import * as bcrypt from 'bcrypt';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+
+import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 
 import { User } from './entities/user.entity';

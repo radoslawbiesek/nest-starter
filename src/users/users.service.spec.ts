@@ -3,17 +3,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
 import * as bcrypt from 'bcrypt';
-import { Repository } from 'typeorm';
 
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
-
-type MockRepository<T = any> = Partial<Record<keyof Repository<T>, jest.Mock>>;
-const createMockRepository = <T = any>(): MockRepository<T> => ({
-  findOne: jest.fn(),
-  create: jest.fn(),
-  save: jest.fn(),
-});
+import { createMockRepository, MockRepository } from '../common/test-utils';
 
 describe('UsersService', () => {
   let service: UsersService;

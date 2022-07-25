@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 
 import * as bcrypt from 'bcrypt';
-import e from 'express';
 import { Repository } from 'typeorm';
 
 import { CreateUserDto } from './dto/create-user.dto';
@@ -35,7 +34,7 @@ export class UsersService {
 
     if (existingUser instanceof Error) {
       const hashedPassword = await bcrypt.hash(password, 12);
-      const user = this.userRepository.create({
+      const user = await this.userRepository.create({
         email,
         password: hashedPassword,
       });

@@ -29,7 +29,7 @@ describe('UsersService', () => {
   });
 
   describe('findOne', () => {
-    it('should return the user object if the user exists', async () => {
+    it('returns the user object if the user exists', async () => {
       const email = 'test@test.com';
       const expectedUser = {};
       userRepository.findOne?.mockResolvedValueOnce(expectedUser);
@@ -43,7 +43,7 @@ describe('UsersService', () => {
       expect(user).toEqual(expectedUser);
     });
 
-    it('should throw the NotFoundException if the user does not exist', async () => {
+    it('throws the NotFoundException if the user does not exist', async () => {
       const invalidEmail = 'test@test.com';
       userRepository.findOne?.mockResolvedValueOnce(undefined);
 
@@ -57,14 +57,18 @@ describe('UsersService', () => {
   });
 
   describe('create', () => {
-    it('should use the hashed password to save in the database', async () => {
+    it('uses the hashed password to save in the database', async () => {
       const email = 'test@test.com';
       const password = 'password';
       const hashedPassword = 'hashedPassword';
+      const id = 1;
       jest
         .spyOn(bcrypt, 'hash')
-        .mockImplementation(() => Promise.resolve(hashedPassword));
+        .mockImplementationOnce(() => Promise.resolve(hashedPassword));
       userRepository.findOne?.mockResolvedValueOnce(undefined);
+      userRepository.create?.mockResolvedValueOnce(
+        Promise.resolve({ id, email, password }),
+      );
 
       await service.create({ email, password });
 
@@ -77,7 +81,7 @@ describe('UsersService', () => {
       expect(userRepository.save).toHaveBeenCalledTimes(1);
     });
 
-    it('should throw BadRequestException if the user with given email already exists', async () => {
+    it('throws BadRequestException if the user with given email already exists', async () => {
       const email = 'test@test.com';
       const password = 'password';
       const id = 1;

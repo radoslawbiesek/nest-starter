@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
@@ -64,6 +64,7 @@ describe('UsersService', () => {
       jest
         .spyOn(bcrypt, 'hash')
         .mockImplementation(() => Promise.resolve(hashedPassword));
+      userRepository.findOne?.mockResolvedValueOnce(undefined);
 
       await service.create({ email, password });
 
@@ -74,6 +75,25 @@ describe('UsersService', () => {
       });
       expect(userRepository.create).toHaveBeenCalledTimes(1);
       expect(userRepository.save).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw BadRequestException if the user with given email already exists', async () => {
+      const email = 'test@test.com';
+      const password = 'password';
+      const id = 1;
+
+      jest
+        .spyOn(service, 'findOne')
+        .mockResolvedValueOnce(Promise.resolve({ email, password, id }));
+
+      try {
+        await service.create({ email, password });
+      } catch (err) {
+        expect(err).toBeInstanceOf(BadRequestException);
+        expect(err.message).toMatchInlineSnapshot(
+          `"User with given email already exists"`,
+        );
+      }
     });
   });
 });

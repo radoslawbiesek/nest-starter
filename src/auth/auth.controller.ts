@@ -1,38 +1,31 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
-import { Request as ExpressRequest } from 'express';
-import { User } from 'src/users/entities/user.entity';
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Request } from 'express';
+import { User } from '../users/entities/user.entity';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
+import { RequestUser } from './auth.types';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto) {
+  async register(@Body() createUserDto: CreateUserDto): Promise<RequestUser> {
     return this.authService.register(createUserDto);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: ExpressRequest) {
-    const user = req.user as User;
-    return this.authService.login(user);
+  async login(@Req() req: Request) {
+    return this.authService.login(req.user as RequestUser);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async me(@Request() req: ExpressRequest) {
-    return req.user;
+  async me(@Req() req: Request): Promise<RequestUser> {
+    return req.user as RequestUser;
   }
 }

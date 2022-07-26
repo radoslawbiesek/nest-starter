@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 import { AuthService } from './auth.service';
 import { UsersService } from '../users/users.service';
@@ -12,15 +14,16 @@ describe('AuthService', () => {
   let service: AuthService;
   let usersService: UsersService;
 
-  const email = 'test@test.com';
-  const password = 'password';
-  const id = 1;
+  const email = faker.internet.email();
+  const password = faker.internet.password();
+  const id = faker.datatype.number();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
         UsersService,
+        JwtService,
         { provide: getRepositoryToken(User), useValue: createMockRepository() },
       ],
     }).compile();

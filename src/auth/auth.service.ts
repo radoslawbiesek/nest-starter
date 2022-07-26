@@ -3,10 +3,10 @@ import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
 import * as _ from 'lodash';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
-import { User } from 'src/users/entities/user.entity';
 
+import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
+import { RequestUser } from './auth.types';
 
 @Injectable()
 export class AuthService {
@@ -15,30 +15,33 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  omitPassword(user: User) {
-    return _.omit(user, 'password');
-  }
-
-  async validateUser(email: string, password: string) {
+  async validateUser(
+    email: string,
+    password: string,
+  ): Promise<RequestUser | null> {
     const user = await this.usersService.findOne(email);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      return this.omitPassword(user);
+      return _.omit(user, 'password');
     }
 
     return null;
   }
 
-  async login(user: User) {
-    const payload = { email: user.email, sub: user.id };
+  async login({ email, id }: RequestUser) {
+    const payload = { email, sub: id };
+
     return {
       accessToken: this.jwtService.sign(payload),
     };
   }
 
-  async register(createUserDto: CreateUserDto) {
+  async register(createUserDto: CreateUserDto): Promise<RequestUser> {
     const user = await this.usersService.create(createUserDto);
 
-    return this.omitPassword(user);
+    return {
+      email: user.email,
+      id: user.id,
+    };
   }
 }

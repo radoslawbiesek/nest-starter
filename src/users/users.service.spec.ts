@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 
 import * as bcrypt from 'bcrypt';
+import { faker } from '@faker-js/faker';
 
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -30,7 +31,7 @@ describe('UsersService', () => {
 
   describe('findOne', () => {
     it('returns the user object if the user exists', async () => {
-      const email = 'test@test.com';
+      const email = faker.internet.email();
       const expectedUser = {};
       userRepository.findOne?.mockResolvedValueOnce(expectedUser);
 
@@ -43,25 +44,22 @@ describe('UsersService', () => {
       expect(user).toEqual(expectedUser);
     });
 
-    it('throws the NotFoundException if the user does not exist', async () => {
-      const invalidEmail = 'test@test.com';
+    it('returns null if the user does not exist', async () => {
+      const invalidEmail = faker.internet.email();
       userRepository.findOne?.mockResolvedValueOnce(undefined);
 
-      try {
-        await service.findOne(invalidEmail);
-      } catch (err) {
-        expect(err).toBeInstanceOf(NotFoundException);
-        expect(err.message).toMatchInlineSnapshot(`"User not found"`);
-      }
+      const user = await service.findOne(invalidEmail);
+
+      expect(user).toBeNull();
     });
   });
 
   describe('create', () => {
     it('uses the hashed password to save in the database', async () => {
-      const email = 'test@test.com';
-      const password = 'password';
-      const hashedPassword = 'hashedPassword';
-      const id = 1;
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const hashedPassword = faker.datatype.string();
+      const id = faker.datatype.number();
       jest
         .spyOn(bcrypt, 'hash')
         .mockImplementationOnce(() => Promise.resolve(hashedPassword));
@@ -82,10 +80,9 @@ describe('UsersService', () => {
     });
 
     it('throws BadRequestException if the user with given email already exists', async () => {
-      const email = 'test@test.com';
-      const password = 'password';
-      const id = 1;
-
+      const email = faker.internet.email();
+      const password = faker.internet.password();
+      const id = faker.datatype.number();
       jest
         .spyOn(service, 'findOne')
         .mockResolvedValueOnce(Promise.resolve({ email, password, id }));

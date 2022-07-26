@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 import { RequestUser } from './auth.types';
+import { LoginDto } from './dto/login.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -19,7 +20,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: Request) {
+  async login(@Req() req: Request, @Body() loginDto: LoginDto) {
     return this.authService.login(req.user as RequestUser);
   }
 

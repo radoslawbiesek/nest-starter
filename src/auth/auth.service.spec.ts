@@ -41,7 +41,7 @@ describe('AuthService', () => {
   });
 
   describe('validate', () => {
-    it('should return the user object without the password when the passwords match', async () => {
+    it('should return the user object when the passwords match', async () => {
       jest
         .spyOn(bcrypt, 'compare')
         .mockImplementationOnce(() => Promise.resolve(true));
@@ -50,7 +50,6 @@ describe('AuthService', () => {
 
       expect(user?.email).toBe(email);
       expect(user?.id).toBe(id);
-      expect(user).not.toHaveProperty('password');
     });
 
     it('should return null when the passwords do not match', async () => {

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
 import * as bcrypt from 'bcrypt';
-import * as _ from 'lodash';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { UsersService } from '../users/users.service';
@@ -22,7 +21,7 @@ export class AuthService {
     const user = await this.usersService.findOne(email);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      return _.omit(user, 'password');
+      return user;
     }
 
     return null;
@@ -37,11 +36,6 @@ export class AuthService {
   }
 
   async register(createUserDto: CreateUserDto): Promise<RequestUser> {
-    const user = await this.usersService.create(createUserDto);
-
-    return {
-      email: user.email,
-      id: user.id,
-    };
+    return this.usersService.create(createUserDto);
   }
 }

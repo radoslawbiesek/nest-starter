@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpStatus, INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import * as request from 'supertest';
 import { faker } from '@faker-js/faker';
 
+import { DatabaseModule } from '../../src/database/database.module';
 import { AuthModule } from '../../src/auth/auth.module';
 import { UsersModule } from '../../src/users/users.module';
 import config from '../../src/config/config';
@@ -19,18 +19,9 @@ describe('[Feature] Auth - /auth', () => {
         ConfigModule.forRoot({
           load: [config],
         }),
-        TypeOrmModule.forRoot({
-          type: 'postgres',
-          host: 'localhost',
-          port: 5433,
-          username: 'postgres',
-          password: 'postgres',
-          database: 'postgres',
-          autoLoadEntities: true,
-          synchronize: true,
-        }),
-        AuthModule,
+        DatabaseModule,
         UsersModule,
+        AuthModule,
       ],
     }).compile();
 

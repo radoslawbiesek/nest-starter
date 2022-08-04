@@ -8,14 +8,14 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
 
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
-import { RequestUser } from './auth.types';
 import { LoginDto } from './dto/login.dto';
+import { RequestWithUser } from './auth.types';
+import { User } from 'src/users/entities/user.entity';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -23,19 +23,19 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  async register(@Body() createUserDto: CreateUserDto): Promise<RequestUser> {
+  async register(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.authService.register(createUserDto);
   }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req: Request, @Body() loginDto: LoginDto) {
-    return this.authService.login(req.user as RequestUser);
+  async login(@Req() req: RequestWithUser, @Body() loginDto: LoginDto) {
+    return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  async me(@Req() req: Request): Promise<RequestUser> {
-    return req.user as RequestUser;
+  async me(@Req() req: RequestWithUser): Promise<User> {
+    return req.user;
   }
 }

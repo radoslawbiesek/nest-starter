@@ -4,9 +4,13 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { CustomLogger } from './logs/custom.logger';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    bufferLogs: true,
+  });
+  app.useLogger(app.get(CustomLogger));
 
   const documentConfig = new DocumentBuilder()
     .setTitle('Authenticated app')

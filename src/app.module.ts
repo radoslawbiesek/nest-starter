@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { DatabaseModule } from './database/database.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { LogsModule } from './logs/logs.module';
+import LogsMiddleware from './logs/logs.middleware';
 
 import config from './config/config';
 
@@ -15,8 +17,13 @@ import config from './config/config';
     DatabaseModule,
     UsersModule,
     AuthModule,
+    LogsModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LogsMiddleware).forRoutes('*');
+  }
+}
